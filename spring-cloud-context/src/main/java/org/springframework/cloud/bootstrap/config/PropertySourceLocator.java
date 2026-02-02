@@ -32,41 +32,37 @@ import org.springframework.core.env.PropertySource;
  * starting.
  *
  * @author Dave Syer
- *
  */
 public interface PropertySourceLocator {
 
-	/**
-	 * @param environment The current Environment.
-	 * @return A PropertySource, or null if there is none.
-	 * @throws IllegalStateException if there is a fail-fast condition.
-	 */
-	PropertySource<?> locate(Environment environment);
+    /**
+     * @param environment The current Environment.
+     * @return A PropertySource, or null if there is none.
+     * @throws IllegalStateException if there is a fail-fast condition.
+     */
+    PropertySource<?> locate(Environment environment);
 
-	default Collection<PropertySource<?>> locateCollection(Environment environment) {
-		return locateCollection(this, environment);
-	}
+    default Collection<PropertySource<?>> locateCollection(Environment environment) {
+        return locateCollection(this, environment);
+    }
 
-	static Collection<PropertySource<?>> locateCollection(PropertySourceLocator locator,
-			Environment environment) {
-		PropertySource<?> propertySource = locator.locate(environment);
-		if (propertySource == null) {
-			return Collections.emptyList();
-		}
-		if (CompositePropertySource.class.isInstance(propertySource)) {
-			Collection<PropertySource<?>> sources = ((CompositePropertySource) propertySource)
-					.getPropertySources();
-			List<PropertySource<?>> filteredSources = new ArrayList<>();
-			for (PropertySource<?> p : sources) {
-				if (p != null) {
-					filteredSources.add(p);
-				}
-			}
-			return filteredSources;
-		}
-		else {
-			return Arrays.asList(propertySource);
-		}
-	}
+    static Collection<PropertySource<?>> locateCollection(PropertySourceLocator locator, Environment environment) {
+        PropertySource<?> propertySource = locator.locate(environment);
+        if (propertySource == null) {
+            return Collections.emptyList();
+        }
+        if (CompositePropertySource.class.isInstance(propertySource)) {
+            Collection<PropertySource<?>> sources = ((CompositePropertySource) propertySource).getPropertySources();
+            List<PropertySource<?>> filteredSources = new ArrayList<>();
+            for (PropertySource<?> p : sources) {
+                if (p != null) {
+                    filteredSources.add(p);
+                }
+            }
+            return filteredSources;
+        } else {
+            return Arrays.asList(propertySource);
+        }
+    }
 
 }

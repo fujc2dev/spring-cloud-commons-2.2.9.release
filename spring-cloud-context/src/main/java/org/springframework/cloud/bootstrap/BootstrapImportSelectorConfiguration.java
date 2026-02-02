@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import;
  * @author Spencer Gibb
  */
 @Configuration(proxyBeanMethods = false)
+// Spring 官方写代码也是瞎几把写的。按照常理我 定义DeferredImportSelector是一个延迟加载。他用@Import。
 @Import(BootstrapImportSelector.class)
 public class BootstrapImportSelectorConfiguration {
 

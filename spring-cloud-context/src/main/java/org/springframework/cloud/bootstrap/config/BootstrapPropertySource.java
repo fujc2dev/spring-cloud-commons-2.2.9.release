@@ -33,29 +33,28 @@ import static org.springframework.cloud.bootstrap.config.PropertySourceBootstrap
  */
 public class BootstrapPropertySource<T> extends EnumerablePropertySource<T> {
 
-	private EnumerablePropertySource<T> delegate;
+    private EnumerablePropertySource<T> delegate;
 
-	public BootstrapPropertySource(EnumerablePropertySource<T> delegate) {
-		super(BOOTSTRAP_PROPERTY_SOURCE_NAME + "-" + delegate.getName(),
-				delegate.getSource());
-		this.delegate = delegate;
-	}
+    public BootstrapPropertySource(EnumerablePropertySource<T> delegate) {
+        super(BOOTSTRAP_PROPERTY_SOURCE_NAME + "-" + delegate.getName(), delegate.getSource());
+        this.delegate = delegate;
+    }
 
-	@Override
-	public Object getProperty(String name) {
-		return this.delegate.getProperty(name);
-	}
+    @Override
+    public Object getProperty(String name) {
+        return this.delegate.getProperty(name);
+    }
 
-	@Override
-	public String[] getPropertyNames() {
-		Set<String> names = new LinkedHashSet<>();
-		names.addAll(Arrays.asList(this.delegate.getPropertyNames()));
+    @Override
+    public String[] getPropertyNames() {
+        Set<String> names = new LinkedHashSet<>();
+        names.addAll(Arrays.asList(this.delegate.getPropertyNames()));
 
-		return StringUtils.toStringArray(names);
-	}
+        return StringUtils.toStringArray(names);
+    }
 
-	public PropertySource<T> getDelegate() {
-		return delegate;
-	}
+    public PropertySource<T> getDelegate() {
+        return delegate;
+    }
 
 }
