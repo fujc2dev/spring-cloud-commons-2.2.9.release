@@ -145,23 +145,14 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-test-support</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
 		<module>spring-cloud-commons-dependencies</module>
-		<module>spring-cloud-test-support</module>
 		<module>spring-cloud-context</module>
-		<module>spring-cloud-context-integration-tests</module>
-		<module>spring-cloud-context-webflux-integration-tests</module>
 		<module>spring-cloud-commons</module>
 		<module>spring-cloud-loadbalancer</module>
 		<module>spring-cloud-starter</module>
 		<module>spring-cloud-starter-loadbalancer</module>
-		<module>docs</module>
 	</modules>
 </project>
