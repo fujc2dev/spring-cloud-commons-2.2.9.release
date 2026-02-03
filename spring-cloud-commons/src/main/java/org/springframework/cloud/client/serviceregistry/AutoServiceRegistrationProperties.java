@@ -19,6 +19,7 @@ package org.springframework.cloud.client.serviceregistry;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
+ *
  * @author Spencer Gibb
  */
 @ConfigurationProperties("spring.cloud.service-registry.auto-registration")
