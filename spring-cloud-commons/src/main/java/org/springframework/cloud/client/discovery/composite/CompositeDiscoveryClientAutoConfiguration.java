@@ -32,14 +32,18 @@ import org.springframework.context.annotation.Primary;
  */
 
 @Configuration(proxyBeanMethods = false)
+// CompositeDiscoveryClientAutoConfiguration在SimpleDiscoveryClientAutoConfiguration前被加载
+// 也就是优先配置有Nacos等外部注册的配置，
+// 如果没有外部注册的配置，则使用SimpleDiscoveryClientAutoConfiguration
 @AutoConfigureBefore(SimpleDiscoveryClientAutoConfiguration.class)
 public class CompositeDiscoveryClientAutoConfiguration {
 
-	@Bean
-	@Primary
-	public CompositeDiscoveryClient compositeDiscoveryClient(
-			List<DiscoveryClient> discoveryClients) {
-		return new CompositeDiscoveryClient(discoveryClients);
-	}
+    @Bean
+    // SpringCloud 允许第三方厂家实现 DiscoveryClient 接口，但是调用得由我（SpringCloud）来
+    // SpringCloud 自己提供了一个聚合的CompositeDiscoveryClient
+    @Primary
+    public CompositeDiscoveryClient compositeDiscoveryClient(List<DiscoveryClient> discoveryClients) {
+        return new CompositeDiscoveryClient(discoveryClients);
+    }
 
 }

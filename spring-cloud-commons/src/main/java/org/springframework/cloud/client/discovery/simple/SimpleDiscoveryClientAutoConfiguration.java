@@ -32,68 +32,67 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 /**
- * Spring Boot auto-configuration for simple properties-based discovery client.
+ * Spring Boot 为简单的属性发现客户端自动配置。
  *
  * @author Biju Kunjummen
  * @author Charu Covindane
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
-		CommonsClientAutoConfiguration.class })
-public class SimpleDiscoveryClientAutoConfiguration
-		implements ApplicationListener<WebServerInitializedEvent> {
+// 当前SimpleDiscoveryClientAutoConfiguration配置类，在 NoopDiscoveryClientAutoConfiguration 之前执行
+@AutoConfigureBefore({NoopDiscoveryClientAutoConfiguration.class, CommonsClientAutoConfiguration.class})
+public class SimpleDiscoveryClientAutoConfiguration implements ApplicationListener<WebServerInitializedEvent> {
 
-	private ServerProperties server;
+    private ServerProperties server;
 
-	private InetUtils inet;
+    private InetUtils inet;
 
-	private int port = 0;
+    private int port = 0;
 
-	private SimpleDiscoveryProperties simple = new SimpleDiscoveryProperties();
+    private SimpleDiscoveryProperties simple = new SimpleDiscoveryProperties();
 
-	@Autowired(required = false)
-	public void setServer(ServerProperties server) {
-		this.server = server;
-	}
+    @Autowired(required = false)
+    public void setServer(ServerProperties server) {
+        this.server = server;
+    }
 
-	@Autowired
-	public void setInet(InetUtils inet) {
-		this.inet = inet;
-	}
+    @Autowired
+    public void setInet(InetUtils inet) {
+        this.inet = inet;
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public SimpleDiscoveryProperties simpleDiscoveryProperties(
-			@Value("${spring.application.name:application}") String serviceId) {
-		simple.getLocal().setServiceId(serviceId);
-		simple.getLocal().setHost(inet.findFirstNonLoopbackHostInfo().getHostname());
-		simple.getLocal().setPort(findPort());
-		return simple;
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    public SimpleDiscoveryProperties simpleDiscoveryProperties(
+            @Value("${spring.application.name:application}") String serviceId) {
+        simple.getLocal().setServiceId(serviceId);
+        simple.getLocal().setHost(inet.findFirstNonLoopbackHostInfo().getHostname());
+        simple.getLocal().setPort(findPort());
+        return simple;
+    }
 
-	@Bean
-	@Order
-	public DiscoveryClient simpleDiscoveryClient(SimpleDiscoveryProperties properties) {
-		return new SimpleDiscoveryClient(properties);
-	}
+    @Bean
+    @Order
+    public DiscoveryClient simpleDiscoveryClient(SimpleDiscoveryProperties properties) {
+        return new SimpleDiscoveryClient(properties);
+    }
 
-	private int findPort() {
-		if (port > 0) {
-			return port;
-		}
-		if (server != null && server.getPort() != null && server.getPort() > 0) {
-			return server.getPort();
-		}
-		return 8080;
-	}
+    private int findPort() {
+        if (port > 0) {
+            return port;
+        }
+        if (server != null && server.getPort() != null && server.getPort() > 0) {
+            return server.getPort();
+        }
+        return 8080;
+    }
 
-	@Override
-	public void onApplicationEvent(WebServerInitializedEvent webServerInitializedEvent) {
-		port = webServerInitializedEvent.getWebServer().getPort();
-		if (port > 0) {
-			simple.getLocal().setHost(inet.findFirstNonLoopbackHostInfo().getHostname());
-			simple.getLocal().setPort(port);
-		}
-	}
+    @Override
+    public void onApplicationEvent(WebServerInitializedEvent webServerInitializedEvent) {
+        port = webServerInitializedEvent.getWebServer().getPort();
+        if (port > 0) {
+            simple.getLocal().setHost(inet.findFirstNonLoopbackHostInfo().getHostname());
+            simple.getLocal().setPort(port);
+        }
+    }
 
 }
