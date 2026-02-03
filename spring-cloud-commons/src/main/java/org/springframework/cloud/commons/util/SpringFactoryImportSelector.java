@@ -41,79 +41,72 @@ import org.springframework.util.Assert;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public abstract class SpringFactoryImportSelector<T>
-		implements DeferredImportSelector, BeanClassLoaderAware, EnvironmentAware {
+public abstract class SpringFactoryImportSelector<T> implements DeferredImportSelector, BeanClassLoaderAware, EnvironmentAware {
 
-	private final Log log = LogFactory.getLog(SpringFactoryImportSelector.class);
+    private final Log log = LogFactory.getLog(SpringFactoryImportSelector.class);
 
-	private ClassLoader beanClassLoader;
+    private ClassLoader beanClassLoader;
 
-	private Class<T> annotationClass;
+    private Class<T> annotationClass;
 
-	private Environment environment;
+    private Environment environment;
 
-	@SuppressWarnings("unchecked")
-	protected SpringFactoryImportSelector() {
-		this.annotationClass = (Class<T>) GenericTypeResolver
-				.resolveTypeArgument(this.getClass(), SpringFactoryImportSelector.class);
-	}
+    @SuppressWarnings("unchecked")
+    protected SpringFactoryImportSelector() {
+        this.annotationClass = (Class<T>) GenericTypeResolver.resolveTypeArgument(this.getClass(), SpringFactoryImportSelector.class);
+    }
 
-	@Override
-	public String[] selectImports(AnnotationMetadata metadata) {
-		if (!isEnabled()) {
-			return new String[0];
-		}
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
-				metadata.getAnnotationAttributes(this.annotationClass.getName(), true));
+    @Override
+    public String[] selectImports(AnnotationMetadata metadata) {
+        if (!isEnabled()) {
+            return new String[0];
+        }
+        AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(this.annotationClass.getName(), true));
 
-		Assert.notNull(attributes, "No " + getSimpleName() + " attributes found. Is "
-				+ metadata.getClassName() + " annotated with @" + getSimpleName() + "?");
+        Assert.notNull(attributes, "No " + getSimpleName() + " attributes found. Is " + metadata.getClassName() + " annotated with @" + getSimpleName() + "?");
 
-		// Find all possible auto configuration classes, filtering duplicates
-		List<String> factories = new ArrayList<>(new LinkedHashSet<>(SpringFactoriesLoader
-				.loadFactoryNames(this.annotationClass, this.beanClassLoader)));
+        // Find all possible auto configuration classes, filtering duplicates
+        List<String> factories = new ArrayList<>(new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(this.annotationClass, this.beanClassLoader)));
 
-		if (factories.isEmpty() && !hasDefaultFactory()) {
-			throw new IllegalStateException("Annotation @" + getSimpleName()
-					+ " found, but there are no implementations. Did you forget to include a starter?");
-		}
+        if (factories.isEmpty() && !hasDefaultFactory()) {
+            throw new IllegalStateException("Annotation @" + getSimpleName() + " found, but there are no implementations. Did you forget to include a starter?");
+        }
 
-		if (factories.size() > 1) {
-			// there should only ever be one DiscoveryClient, but there might be more than
-			// one factory
-			this.log.warn("More than one implementation " + "of @" + getSimpleName()
-					+ " (now relying on @Conditionals to pick one): " + factories);
-		}
+        if (factories.size() > 1) {
+            // there should only ever be one DiscoveryClient, but there might be more than
+            // one factory
+            this.log.warn("More than one implementation " + "of @" + getSimpleName() + " (now relying on @Conditionals to pick one): " + factories);
+        }
 
-		return factories.toArray(new String[factories.size()]);
-	}
+        return factories.toArray(new String[factories.size()]);
+    }
 
-	protected boolean hasDefaultFactory() {
-		return false;
-	}
+    protected boolean hasDefaultFactory() {
+        return false;
+    }
 
-	protected abstract boolean isEnabled();
+    protected abstract boolean isEnabled();
 
-	protected String getSimpleName() {
-		return this.annotationClass.getSimpleName();
-	}
+    protected String getSimpleName() {
+        return this.annotationClass.getSimpleName();
+    }
 
-	protected Class<T> getAnnotationClass() {
-		return this.annotationClass;
-	}
+    protected Class<T> getAnnotationClass() {
+        return this.annotationClass;
+    }
 
-	protected Environment getEnvironment() {
-		return this.environment;
-	}
+    protected Environment getEnvironment() {
+        return this.environment;
+    }
 
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
-	}
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.beanClassLoader = classLoader;
+    }
 
 }

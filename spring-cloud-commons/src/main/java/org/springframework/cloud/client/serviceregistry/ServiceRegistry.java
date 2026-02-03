@@ -17,7 +17,13 @@
 package org.springframework.cloud.client.serviceregistry;
 
 /**
- * Contract to register and deregister instances with a Service Registry.
+ * 服务注册核心接口，定义了服务注册和注销的接口
+ * <p>
+ * 服务注册核心接口，定义了服务注册和注销的接口
+ * </p>
+ * <p>
+ * {@link Registration } 是一个标记接口，代表一个服务实例的注册信息，不同的实现会有不同的具体实现类，比如：Eureka的EurekaRegistration。
+ * </p>
  *
  * @param <R> registration meta data
  * @author Spencer Gibb
@@ -25,40 +31,42 @@ package org.springframework.cloud.client.serviceregistry;
  */
 public interface ServiceRegistry<R extends Registration> {
 
-	/**
-	 * Registers the registration. A registration typically has information about an
-	 * instance, such as its hostname and port.
-	 * @param registration registration meta data
-	 */
-	void register(R registration);
+    /**
+     * 服务注册
+     *
+     * @param registration 元数据，默认 ip、port以及微服务名称，实现的话比如：Eureka的EurekaRegistration
+     */
+    void register(R registration);
 
-	/**
-	 * Deregisters the registration.
-	 * @param registration registration meta data
-	 */
-	void deregister(R registration);
+    /**
+     * 服务注销
+     *
+     * @param registration 元数据，默认 ip、port以及微服务名称，实现的话比如：Eureka的EurekaRegistration
+     */
+    void deregister(R registration);
 
-	/**
-	 * Closes the ServiceRegistry. This is a lifecycle method.
-	 */
-	void close();
+    /**
+     * 关闭服务，就目前我的理解就是不允许它被服务发现？
+     */
+    void close();
 
-	/**
-	 * Sets the status of the registration. The status values are determined by the
-	 * individual implementations.
-	 * @param registration The registration to update.
-	 * @param status The status to set.
-	 * @see org.springframework.cloud.client.serviceregistry.endpoint.ServiceRegistryEndpoint
-	 */
-	void setStatus(R registration, String status);
+    /**
+     * 设置注册状态。状态值由各个实现决定。
+     *
+     * @param registration 服务注册信息
+     * @param status       状态数据
+     * @see org.springframework.cloud.client.serviceregistry.endpoint.ServiceRegistryEndpoint
+     */
+    void setStatus(R registration, String status);
 
-	/**
-	 * Gets the status of a particular registration.
-	 * @param registration The registration to query.
-	 * @param <T> The type of the status.
-	 * @return The status of the registration.
-	 * @see org.springframework.cloud.client.serviceregistry.endpoint.ServiceRegistryEndpoint
-	 */
-	<T> T getStatus(R registration);
+    /**
+     * Gets the status of a particular registration.
+     *
+     * @param registration 服务注册信息
+     * @param <T>          状态信息类型
+     * @return 状态信息
+     * @see org.springframework.cloud.client.serviceregistry.endpoint.ServiceRegistryEndpoint
+     */
+    <T> T getStatus(R registration);
 
 }

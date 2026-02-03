@@ -17,6 +17,15 @@
 package org.springframework.cloud.client.serviceregistry;
 
 /**
+ * 自动服务注册的抽象接口
+ * <p>
+ * 一切的前提，SpringCloud Commons是一套标准接口，
+ * 具体实现（如 EurekaAutoServiceRegistration）是触发自动注册的关键。
+ * <p>
+ * 其工作流程通常与 Spring 的生命周期绑定。
+ * <p>
+ * SpringCloud内置了{@link AbstractAutoServiceRegistration}的基础基类，供其他三方厂家实现。
+ *
  * @author Spencer Gibb
  */
 public interface AutoServiceRegistration {

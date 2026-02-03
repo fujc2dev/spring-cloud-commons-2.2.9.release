@@ -27,48 +27,50 @@ import java.util.Map;
  */
 public interface ServiceInstance {
 
-	/**
-	 * @return The unique instance ID as registered.
-	 */
-	default String getInstanceId() {
-		return null;
-	}
+    /**
+     * @return The unique instance ID as registered.
+     */
+    default String getInstanceId() {
+        return null;
+    }
 
-	/**
-	 * @return The service ID as registered.
-	 */
-	String getServiceId();
+    /**
+     * @return The service ID as registered.
+     */
+    String getServiceId();
 
-	/**
-	 * @return The hostname of the registered service instance.
-	 */
-	String getHost();
+    /**
+     * @return The hostname of the registered service instance.
+     */
+    String getHost();
 
-	/**
-	 * @return The port of the registered service instance.
-	 */
-	int getPort();
+    /**
+     * @return The port of the registered service instance.
+     */
+    int getPort();
 
-	/**
-	 * @return Whether the port of the registered service instance uses HTTPS.
-	 */
-	boolean isSecure();
+    /**
+     * 注册服务实例的端口是否使用 HTTPS。
+     *
+     * @return Whether the port of the registered service instance uses HTTPS.
+     */
+    boolean isSecure();
 
-	/**
-	 * @return The service URI address.
-	 */
-	URI getUri();
+    /**
+     * @return The service URI address.
+     */
+    URI getUri();
 
-	/**
-	 * @return The key / value pair metadata associated with the service instance.
-	 */
-	Map<String, String> getMetadata();
+    /**
+     * @return The key / value pair metadata associated with the service instance.
+     */
+    Map<String, String> getMetadata();
 
-	/**
-	 * @return The scheme of the service instance.
-	 */
-	default String getScheme() {
-		return null;
-	}
+    /**
+     * @return The scheme of the service instance.
+     */
+    default String getScheme() {
+        return null;
+    }
 
 }

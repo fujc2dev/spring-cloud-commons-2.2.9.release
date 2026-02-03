@@ -26,48 +26,47 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 
 /**
- * Endpoint to display and set the service instance status using the ServiceRegistry.
+ * 端点通过ServiceRegistry显示并设置服务实例状态。
  *
  * @author Spencer Gibb
  */
 @SuppressWarnings("unchecked")
+// @Endpoint 是Spring Boot Actuator 的端点注解。
+// 我的理解是如果用户如果添加了Actuator包，我们可以通过HTTP接口 /actuator/service-registry获取到注册
 @Endpoint(id = "service-registry")
 public class ServiceRegistryEndpoint {
 
-	private final ServiceRegistry serviceRegistry;
+    private final ServiceRegistry serviceRegistry;
 
-	private Registration registration;
+    private Registration registration;
 
-	public ServiceRegistryEndpoint(ServiceRegistry<?> serviceRegistry) {
-		this.serviceRegistry = serviceRegistry;
-	}
+    public ServiceRegistryEndpoint(ServiceRegistry<?> serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+    }
 
-	public void setRegistration(Registration registration) {
-		this.registration = registration;
-	}
+    public void setRegistration(Registration registration) {
+        this.registration = registration;
+    }
 
-	@WriteOperation
-	public ResponseEntity<?> setStatus(String status) {
-		Assert.notNull(status, "status may not by null");
+    @WriteOperation
+    public ResponseEntity<?> setStatus(String status) {
+        Assert.notNull(status, "status may not by null");
 
-		if (this.registration == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body("no registration found");
-		}
+        if (this.registration == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no registration found");
+        }
 
-		this.serviceRegistry.setStatus(this.registration, status);
-		return ResponseEntity.ok().build();
-	}
+        this.serviceRegistry.setStatus(this.registration, status);
+        return ResponseEntity.ok().build();
+    }
 
-	@ReadOperation
-	public ResponseEntity getStatus() {
-		if (this.registration == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body("no registration found");
-		}
+    @ReadOperation
+    public ResponseEntity getStatus() {
+        if (this.registration == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no registration found");
+        }
 
-		return ResponseEntity.ok()
-				.body(this.serviceRegistry.getStatus(this.registration));
-	}
+        return ResponseEntity.ok().body(this.serviceRegistry.getStatus(this.registration));
+    }
 
 }
