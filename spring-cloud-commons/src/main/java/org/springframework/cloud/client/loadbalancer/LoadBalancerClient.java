@@ -22,49 +22,46 @@ import java.net.URI;
 import org.springframework.cloud.client.ServiceInstance;
 
 /**
- * Represents a client-side load balancer.
+ * SpringCloud 定义了LoadBalancerClient接口。
+ * <p>
+ * 这个接口是连接“服务发现”和“HTTP客户端”的桥梁。
+ * </p>
  *
  * @author Spencer Gibb
  */
 public interface LoadBalancerClient extends ServiceInstanceChooser {
 
-	/**
-	 * Executes request using a ServiceInstance from the LoadBalancer for the specified
-	 * service.
-	 * @param serviceId The service ID to look up the LoadBalancer.
-	 * @param request Allows implementations to execute pre and post actions, such as
-	 * incrementing metrics.
-	 * @param <T> type of the response
-	 * @throws IOException in case of IO issues.
-	 * @return The result of the LoadBalancerRequest callback on the selected
-	 * ServiceInstance.
-	 */
-	<T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException;
+    /**
+     * 核心方法：使用服务名（serviceId）来执行请求，替代原有的主机和端口
+     *
+     * @param serviceId 服务名
+     * @param request   请求
+     * @param <T>       泛型
+     * @return 响应
+     * @throws IOException
+     */
+    <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException;
 
-	/**
-	 * Executes request using a ServiceInstance from the LoadBalancer for the specified
-	 * service.
-	 * @param serviceId The service ID to look up the LoadBalancer.
-	 * @param serviceInstance The service to execute the request to.
-	 * @param request Allows implementations to execute pre and post actions, such as
-	 * incrementing metrics.
-	 * @param <T> type of the response
-	 * @throws IOException in case of IO issues.
-	 * @return The result of the LoadBalancerRequest callback on the selected
-	 * ServiceInstance.
-	 */
-	<T> T execute(String serviceId, ServiceInstance serviceInstance,
-			LoadBalancerRequest<T> request) throws IOException;
+    /**
+     * 根据服务名，解析出一个具体的服务实例（ServiceInstance）
+     *
+     * @param serviceId       服务名
+     * @param serviceInstance 服务实例
+     * @param request         请求
+     * @param <T>             泛型
+     * @return 响应
+     * @throws IOException
+     */
+    <T> T execute(String serviceId, ServiceInstance serviceInstance,
+                  LoadBalancerRequest<T> request) throws IOException;
 
-	/**
-	 * Creates a proper URI with a real host and port for systems to utilize. Some systems
-	 * use a URI with the logical service name as the host, such as
-	 * http://myservice/path/to/service. This will replace the service name with the
-	 * host:port from the ServiceInstance.
-	 * @param instance service instance to reconstruct the URI
-	 * @param original A URI with the host as a logical service name.
-	 * @return A reconstructed URI.
-	 */
-	URI reconstructURI(ServiceInstance instance, URI original);
+    /**
+     * 将类似 http://myservice/path 的URI重构为 http://real-host:port/path
+     *
+     * @param instance 服务实例
+     * @param original 原始URI
+     * @return 构建后的URI
+     */
+    URI reconstructURI(ServiceInstance instance, URI original);
 
 }

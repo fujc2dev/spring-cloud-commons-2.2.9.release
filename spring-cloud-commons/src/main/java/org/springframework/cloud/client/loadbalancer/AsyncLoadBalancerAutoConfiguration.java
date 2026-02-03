@@ -30,6 +30,11 @@ import org.springframework.http.client.AsyncClientHttpRequestInterceptor;
 import org.springframework.web.client.AsyncRestTemplate;
 
 /**
+ * 这个类应该是没啥用了。
+ * 我在学习OpenFeign源码的时候，调用的依然还是LoadBalancerAutoConfiguration
+ * <p>
+ *  我看注释，AsyncRestTemplate已经在Spring5.x中移除了。
+ * </p>
  * Auto-configuration for Ribbon (client-side load balancing).
  *
  * @author Rob Worsnop
@@ -39,53 +44,49 @@ import org.springframework.web.client.AsyncRestTemplate;
 @ConditionalOnClass(AsyncRestTemplate.class)
 public class AsyncLoadBalancerAutoConfiguration {
 
-	@Configuration(proxyBeanMethods = false)
-	static class AsyncRestTemplateCustomizerConfig {
+    @Configuration(proxyBeanMethods = false)
+    static class AsyncRestTemplateCustomizerConfig {
 
-		@LoadBalanced
-		@Autowired(required = false)
-		private List<AsyncRestTemplate> restTemplates = Collections.emptyList();
+        @LoadBalanced
+        @Autowired(required = false)
+        private List<AsyncRestTemplate> restTemplates = Collections.emptyList();
 
-		@Bean
-		public SmartInitializingSingleton loadBalancedAsyncRestTemplateInitializer(
-				final List<AsyncRestTemplateCustomizer> customizers) {
-			return new SmartInitializingSingleton() {
-				@Override
-				public void afterSingletonsInstantiated() {
-					for (AsyncRestTemplate restTemplate : AsyncRestTemplateCustomizerConfig.this.restTemplates) {
-						for (AsyncRestTemplateCustomizer customizer : customizers) {
-							customizer.customize(restTemplate);
-						}
-					}
-				}
-			};
-		}
+        @Bean
+        public SmartInitializingSingleton loadBalancedAsyncRestTemplateInitializer(final List<AsyncRestTemplateCustomizer> customizers) {
+            return new SmartInitializingSingleton() {
+                @Override
+                public void afterSingletonsInstantiated() {
+                    for (AsyncRestTemplate restTemplate : AsyncRestTemplateCustomizerConfig.this.restTemplates) {
+                        for (AsyncRestTemplateCustomizer customizer : customizers) {
+                            customizer.customize(restTemplate);
+                        }
+                    }
+                }
+            };
+        }
 
-	}
+    }
 
-	@Configuration(proxyBeanMethods = false)
-	static class LoadBalancerInterceptorConfig {
+    @Configuration(proxyBeanMethods = false)
+    static class LoadBalancerInterceptorConfig {
 
-		@Bean
-		public AsyncLoadBalancerInterceptor asyncLoadBalancerInterceptor(
-				LoadBalancerClient loadBalancerClient) {
-			return new AsyncLoadBalancerInterceptor(loadBalancerClient);
-		}
+        @Bean
+        public AsyncLoadBalancerInterceptor asyncLoadBalancerInterceptor(LoadBalancerClient loadBalancerClient) {
+            return new AsyncLoadBalancerInterceptor(loadBalancerClient);
+        }
 
-		@Bean
-		public AsyncRestTemplateCustomizer asyncRestTemplateCustomizer(
-				final AsyncLoadBalancerInterceptor loadBalancerInterceptor) {
-			return new AsyncRestTemplateCustomizer() {
-				@Override
-				public void customize(AsyncRestTemplate restTemplate) {
-					List<AsyncClientHttpRequestInterceptor> list = new ArrayList<>(
-							restTemplate.getInterceptors());
-					list.add(loadBalancerInterceptor);
-					restTemplate.setInterceptors(list);
-				}
-			};
-		}
+        @Bean
+        public AsyncRestTemplateCustomizer asyncRestTemplateCustomizer(final AsyncLoadBalancerInterceptor loadBalancerInterceptor) {
+            return new AsyncRestTemplateCustomizer() {
+                @Override
+                public void customize(AsyncRestTemplate restTemplate) {
+                    List<AsyncClientHttpRequestInterceptor> list = new ArrayList<>(restTemplate.getInterceptors());
+                    list.add(loadBalancerInterceptor);
+                    restTemplate.setInterceptors(list);
+                }
+            };
+        }
 
-	}
+    }
 
 }

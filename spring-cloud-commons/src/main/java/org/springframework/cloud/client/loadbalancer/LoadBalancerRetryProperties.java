@@ -26,152 +26,178 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 
 /**
- * Configuration properties for the {@link LoadBalancerClient}.
+ * 该类是一个{@link LoadBalancerClient}配置属性类（Configuration Properties），
+ * 它的作用是将应用程序配置文件（如 application.yml）中以 spring.cloud.loadbalancer.retry
+ * 为前缀的属性映射到 Java 对象的字段上。
  *
  * @author Ryan Baxter
  */
 @ConfigurationProperties("spring.cloud.loadbalancer.retry")
 public class LoadBalancerRetryProperties {
 
-	private boolean enabled = true;
+    /**
+     * 总开关。设置为 false 将完全禁用 LoadBalancer 层面的重试功能
+     */
+    private boolean enabled = true;
 
-	/**
-	 * Indicates retries should be attempted on operations other than
-	 * {@link HttpMethod#GET}.
-	 */
-	private boolean retryOnAllOperations = false;
+    /**
+     * 默认只对 GET 请求进行重试（因为 GET 是幂等的）。
+     * <p>
+     * {@link HttpMethod#GET}.
+     */
+    private boolean retryOnAllOperations = false;
 
-	/**
-	 * Number of retries to be executed on the same <code>ServiceInstance</code>.
-	 */
-	private int maxRetriesOnSameServiceInstance = 0;
+    /**
+     * 在同一实例上的重试次数。
+     * <p>
+     * 当第一次请求到一个实例失败后，框架会立即在同一个实例上重试最多 maxRetriesOnSameServiceInstance 次。
+     * </p>
+     * <p>
+     * 适用场景: 解决暂时的网络抖动或服务实例短暂的GC停顿。如果重试成功，可以避免切换到另一个实例的开销。
+     * </p>
+     */
+    private int maxRetriesOnSameServiceInstance = 0;
 
-	/**
-	 * Number of retries to be executed on the next <code>ServiceInstance</code>. A
-	 * <code>ServiceInstance</code> is chosen before each retry call.
-	 */
-	private int maxRetriesOnNextServiceInstance = 1;
+    /**
+     * 在后续不同实例上的重试次数。
+     * <p>
+     * 当在同一个实例上的重试（如果配置了）都失败后，LoadBalancer 会重新选择一个新实例，然后在新实例上进行请求。
+     * 这个动作最多重复 maxRetriesOnNextServiceInstance 次
+     * </p>
+     * <p>
+     * 计算总重试次数: 总重试次数 = 1 (初始请求) + maxRetriesOnSameServiceInstance + maxRetriesOnNextServiceInstanc
+     * </p>
+     */
+    private int maxRetriesOnNextServiceInstance = 1;
 
-	/**
-	 * A {@link Set} of status codes that should trigger a retry.
-	 */
-	private Set<Integer> retryableStatusCodes = new HashSet<>();
+    /**
+     * 可以指定某些HTTP状态码也触发重试。
+     * <p>
+     * 举例: 如果配置 retryableStatusCodes: [500, 502]，
+     * 那么当服务端返回 500（内部错误）或 502（网关错误）时，LoadBalancer 也会尝试重试。
+     * </p>
+     */
+    private Set<Integer> retryableStatusCodes = new HashSet<>();
 
-	/**
-	 * Properties for Reactor Retry backoffs in Spring Cloud LoadBalancer.
-	 */
-	private Backoff backoff = new Backoff();
+    /**
+     * 重试退避策略 (Backoff 内部类)
+     * <p>
+     * 为了防止在服务短暂不可用时，大量客户端同时重试导致“重试风暴”，该类提供了基于 Reactor 的退避策略。
+     * </p>
+     */
+    private Backoff backoff = new Backoff();
 
-	/**
-	 * Returns true if the load balancer should retry failed requests.
-	 * @return True if the load balancer should retry failed requests; false otherwise.
-	 */
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	/**
-	 * Sets whether the load balancer should retry failed requests.
-	 * @param enabled Whether the load balancer should retry failed requests.
-	 */
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public boolean isRetryOnAllOperations() {
-		return retryOnAllOperations;
-	}
+    public boolean isRetryOnAllOperations() {
+        return retryOnAllOperations;
+    }
 
-	public void setRetryOnAllOperations(boolean retryOnAllOperations) {
-		this.retryOnAllOperations = retryOnAllOperations;
-	}
+    public void setRetryOnAllOperations(boolean retryOnAllOperations) {
+        this.retryOnAllOperations = retryOnAllOperations;
+    }
 
-	public int getMaxRetriesOnSameServiceInstance() {
-		return maxRetriesOnSameServiceInstance;
-	}
+    public int getMaxRetriesOnSameServiceInstance() {
+        return maxRetriesOnSameServiceInstance;
+    }
 
-	public void setMaxRetriesOnSameServiceInstance(int maxRetriesOnSameServiceInstance) {
-		this.maxRetriesOnSameServiceInstance = maxRetriesOnSameServiceInstance;
-	}
+    public void setMaxRetriesOnSameServiceInstance(int maxRetriesOnSameServiceInstance) {
+        this.maxRetriesOnSameServiceInstance = maxRetriesOnSameServiceInstance;
+    }
 
-	public int getMaxRetriesOnNextServiceInstance() {
-		return maxRetriesOnNextServiceInstance;
-	}
+    public int getMaxRetriesOnNextServiceInstance() {
+        return maxRetriesOnNextServiceInstance;
+    }
 
-	public void setMaxRetriesOnNextServiceInstance(int maxRetriesOnNextServiceInstance) {
-		this.maxRetriesOnNextServiceInstance = maxRetriesOnNextServiceInstance;
-	}
+    public void setMaxRetriesOnNextServiceInstance(int maxRetriesOnNextServiceInstance) {
+        this.maxRetriesOnNextServiceInstance = maxRetriesOnNextServiceInstance;
+    }
 
-	public Set<Integer> getRetryableStatusCodes() {
-		return retryableStatusCodes;
-	}
+    public Set<Integer> getRetryableStatusCodes() {
+        return retryableStatusCodes;
+    }
 
-	public void setRetryableStatusCodes(Set<Integer> retryableStatusCodes) {
-		this.retryableStatusCodes = retryableStatusCodes;
-	}
+    public void setRetryableStatusCodes(Set<Integer> retryableStatusCodes) {
+        this.retryableStatusCodes = retryableStatusCodes;
+    }
 
-	public Backoff getBackoff() {
-		return backoff;
-	}
+    public Backoff getBackoff() {
+        return backoff;
+    }
 
-	public void setBackoff(Backoff backoff) {
-		this.backoff = backoff;
-	}
+    public void setBackoff(Backoff backoff) {
+        this.backoff = backoff;
+    }
 
-	public static class Backoff {
+    public static class Backoff {
 
-		/**
-		 * Indicates whether Reactor Retry backoffs should be applied.
-		 */
-		private boolean enabled = false;
+        /**
+         * backoff.enabled (默认: false): 退避策略的总开关。
+         */
+        private boolean enabled = false;
 
-		/**
-		 * Used to set {@link RetryBackoffSpec#minBackoff}.
-		 */
-		private Duration minBackoff = Duration.ofMillis(5);
+        /**
+         * minBackoff (默认: 5ms): 第一次重试的最小等待时间。
+         * <p>
+         * Used to set {@link RetryBackoffSpec#minBackoff}.
+         * </p>
+         */
+        private Duration minBackoff = Duration.ofMillis(5);
 
-		/**
-		 * Used to set {@link RetryBackoffSpec#maxBackoff}.
-		 */
-		private Duration maxBackoff = Duration.ofMillis(Long.MAX_VALUE);
+        /**
+         * maxBackoff (默认: Long.MAX_VALUE): 重试等待时间的上限。
+         * <p>
+         * Used to set {@link RetryBackoffSpec#maxBackoff}.
+         * </p>
+         */
+        private Duration maxBackoff = Duration.ofMillis(Long.MAX_VALUE);
 
-		/**
-		 * Used to set {@link RetryBackoffSpec#jitter}.
-		 */
-		private double jitter = 0.5d;
+        /**
+         * 随机因子（抖动）。每次重试的等待时间会在计算值的基础上增加一个随机扰动，避免多个客户端同步重试。
+         * <p>
+         * Used to set {@link RetryBackoffSpec#jitter}.
+         * </p>
+         */
+        private double jitter = 0.5d;
 
-		public Duration getMinBackoff() {
-			return minBackoff;
-		}
+        public Duration getMinBackoff() {
+            return minBackoff;
+        }
 
-		public void setMinBackoff(Duration minBackoff) {
-			this.minBackoff = minBackoff;
-		}
+        public void setMinBackoff(Duration minBackoff) {
+            this.minBackoff = minBackoff;
+        }
 
-		public Duration getMaxBackoff() {
-			return maxBackoff;
-		}
+        public Duration getMaxBackoff() {
+            return maxBackoff;
+        }
 
-		public void setMaxBackoff(Duration maxBackoff) {
-			this.maxBackoff = maxBackoff;
-		}
+        public void setMaxBackoff(Duration maxBackoff) {
+            this.maxBackoff = maxBackoff;
+        }
 
-		public double getJitter() {
-			return jitter;
-		}
+        public double getJitter() {
+            return jitter;
+        }
 
-		public void setJitter(double jitter) {
-			this.jitter = jitter;
-		}
+        public void setJitter(double jitter) {
+            this.jitter = jitter;
+        }
 
-		public boolean isEnabled() {
-			return enabled;
-		}
+        public boolean isEnabled() {
+            return enabled;
+        }
 
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
-	}
+    }
 
 }
