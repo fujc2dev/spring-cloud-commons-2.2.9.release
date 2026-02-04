@@ -53,6 +53,7 @@ public abstract class SpringFactoryImportSelector<T> implements DeferredImportSe
 
     @SuppressWarnings("unchecked")
     protected SpringFactoryImportSelector() {
+        // 这里拿到的是EnableCircuitBreaker这个注解类
         this.annotationClass = (Class<T>) GenericTypeResolver.resolveTypeArgument(this.getClass(), SpringFactoryImportSelector.class);
     }
 
@@ -61,11 +62,15 @@ public abstract class SpringFactoryImportSelector<T> implements DeferredImportSe
         if (!isEnabled()) {
             return new String[0];
         }
+        // 获取注解的属性，因为EnableCircuitBreaker本身没有属性，会拿到一个空的Hashmap
+        // 我怎么感觉这代码没啥用呢？
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(this.annotationClass.getName(), true));
 
         Assert.notNull(attributes, "No " + getSimpleName() + " attributes found. Is " + metadata.getClassName() + " annotated with @" + getSimpleName() + "?");
 
-        // Find all possible auto configuration classes, filtering duplicates
+        // 在spring.factories里面找
+        // key=org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker的
+        // 所有的配置类
         List<String> factories = new ArrayList<>(new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(this.annotationClass, this.beanClassLoader)));
 
         if (factories.isEmpty() && !hasDefaultFactory()) {
