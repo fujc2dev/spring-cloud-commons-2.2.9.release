@@ -35,6 +35,7 @@ public interface ReactorLoadBalancer<T> extends ReactiveLoadBalancer<T> {
 	 * @param request - an input request
 	 * @return - mono of response
 	 */
+	@Override  // 这里加个@Override看起来就清晰多了
 	@SuppressWarnings("rawtypes")
 	Mono<Response<T>> choose(Request request);
 

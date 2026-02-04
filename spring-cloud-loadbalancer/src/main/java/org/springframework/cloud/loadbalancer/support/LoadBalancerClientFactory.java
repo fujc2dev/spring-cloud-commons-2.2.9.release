@@ -33,31 +33,29 @@ import org.springframework.core.env.Environment;
  * @author Dave Syer
  * @author Olga Maciaszek-Sharma
  */
-public class LoadBalancerClientFactory
-		extends NamedContextFactory<LoadBalancerClientSpecification>
-		implements ReactiveLoadBalancer.Factory<ServiceInstance> {
+public class LoadBalancerClientFactory extends NamedContextFactory<LoadBalancerClientSpecification> implements ReactiveLoadBalancer.Factory<ServiceInstance> {
 
-	/**
-	 * Property source name for load balancer.
-	 */
-	public static final String NAMESPACE = "loadbalancer";
+    /**
+     * Property source name for load balancer.
+     */
+    public static final String NAMESPACE = "loadbalancer";
 
-	/**
-	 * Property for client name within the load balancer namespace.
-	 */
-	public static final String PROPERTY_NAME = NAMESPACE + ".client.name";
+    /**
+     * Property for client name within the load balancer namespace.
+     */
+    public static final String PROPERTY_NAME = NAMESPACE + ".client.name";
 
-	public LoadBalancerClientFactory() {
-		super(LoadBalancerClientConfiguration.class, NAMESPACE, PROPERTY_NAME);
-	}
+    public LoadBalancerClientFactory() {
+        super(LoadBalancerClientConfiguration.class, NAMESPACE, PROPERTY_NAME);
+    }
 
-	public String getName(Environment environment) {
-		return environment.getProperty(PROPERTY_NAME);
-	}
+    public String getName(Environment environment) {
+        return environment.getProperty(PROPERTY_NAME);
+    }
 
-	@Override
-	public ReactiveLoadBalancer<ServiceInstance> getInstance(String serviceId) {
-		return getInstance(serviceId, ReactorServiceInstanceLoadBalancer.class);
-	}
+    @Override
+    public ReactiveLoadBalancer<ServiceInstance> getInstance(String serviceId) {
+        return getInstance(serviceId, ReactorServiceInstanceLoadBalancer.class);
+    }
 
 }

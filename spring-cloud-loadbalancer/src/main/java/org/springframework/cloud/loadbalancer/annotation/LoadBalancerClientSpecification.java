@@ -24,67 +24,72 @@ import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.Assert;
 
 /**
+ * 针对不同微服务的差异规约
+ *
  * @author Dave Syer
  */
-public class LoadBalancerClientSpecification
-		implements NamedContextFactory.Specification {
+public class LoadBalancerClientSpecification implements NamedContextFactory.Specification {
 
-	private String name;
+    /**
+     * 服务标识符（如 "user-service"）
+     */
+    private String name;
+    /**
+     * 服务的差异化配置类数组
+     */
+    private Class<?>[] configuration;
 
-	private Class<?>[] configuration;
+    public LoadBalancerClientSpecification() {
+    }
 
-	public LoadBalancerClientSpecification() {
-	}
+    public LoadBalancerClientSpecification(String name, Class<?>[] configuration) {
+        Assert.hasText(name, "name must not be empty");
+        this.name = name;
+        Assert.notNull(configuration, "configuration must not be null");
+        this.configuration = configuration;
+    }
 
-	public LoadBalancerClientSpecification(String name, Class<?>[] configuration) {
-		Assert.hasText(name, "name must not be empty");
-		this.name = name;
-		Assert.notNull(configuration, "configuration must not be null");
-		this.configuration = configuration;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public void setName(String name) {
+        Assert.hasText(name, "name must not be empty");
+        this.name = name;
+    }
 
-	public void setName(String name) {
-		Assert.hasText(name, "name must not be empty");
-		this.name = name;
-	}
+    public Class<?>[] getConfiguration() {
+        return this.configuration;
+    }
 
-	public Class<?>[] getConfiguration() {
-		return this.configuration;
-	}
+    public void setConfiguration(Class<?>[] configuration) {
+        Assert.notNull(configuration, "configuration must not be null");
+        this.configuration = configuration;
+    }
 
-	public void setConfiguration(Class<?>[] configuration) {
-		Assert.notNull(configuration, "configuration must not be null");
-		this.configuration = configuration;
-	}
+    @Override
+    public String toString() {
+        ToStringCreator to = new ToStringCreator(this);
+        to.append("name", this.name);
+        to.append("configuration", this.configuration);
+        return to.toString();
+    }
 
-	@Override
-	public String toString() {
-		ToStringCreator to = new ToStringCreator(this);
-		to.append("name", this.name);
-		to.append("configuration", this.configuration);
-		return to.toString();
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadBalancerClientSpecification that = (LoadBalancerClientSpecification) o;
+        return Objects.equals(this.name, that.name) && Arrays.equals(this.configuration, that.configuration);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		LoadBalancerClientSpecification that = (LoadBalancerClientSpecification) o;
-		return Objects.equals(this.name, that.name)
-				&& Arrays.equals(this.configuration, that.configuration);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.name, this.configuration);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name, this.configuration);
+    }
 
 }

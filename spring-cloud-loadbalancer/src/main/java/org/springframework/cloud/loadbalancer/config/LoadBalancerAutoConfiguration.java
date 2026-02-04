@@ -41,32 +41,36 @@ import org.springframework.core.env.Environment;
 @Configuration(proxyBeanMethods = false)
 @LoadBalancerClients
 @EnableConfigurationProperties(LoadBalancerProperties.class)
-@AutoConfigureBefore({ ReactorLoadBalancerClientAutoConfiguration.class,
-		LoadBalancerBeanPostProcessorAutoConfiguration.class,
-		ReactiveLoadBalancerAutoConfiguration.class })
+@AutoConfigureBefore({
+        // 响应式编程模型（Reactive） 下负载均衡客户端的配置中心
+        ReactorLoadBalancerClientAutoConfiguration.class,
+        // 响应式编程模型（Reactive） 下负载均衡客户端的配置中心，这个已经被弃用了
+        ReactiveLoadBalancerAutoConfiguration.class,
+        // 响应式编程模型（Reactive） 里面用到了WebFlux里面的WebClient
+        LoadBalancerBeanPostProcessorAutoConfiguration.class
+})
+// LoadBalancerAutoConfiguration 在 LoadBalancerBeanPostProcessorAutoConfiguration之前加载
+// 它在SpringBoot启动启动的时候，这个AutoConfiguration需要排在前面被加载
 public class LoadBalancerAutoConfiguration {
 
-	private final ObjectProvider<List<LoadBalancerClientSpecification>> configurations;
+    private final ObjectProvider<List<LoadBalancerClientSpecification>> configurations;
 
-	public LoadBalancerAutoConfiguration(
-			ObjectProvider<List<LoadBalancerClientSpecification>> configurations) {
-		this.configurations = configurations;
-	}
+    public LoadBalancerAutoConfiguration(ObjectProvider<List<LoadBalancerClientSpecification>> configurations) {
+        this.configurations = configurations;
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public LoadBalancerZoneConfig zoneConfig(Environment environment) {
-		return new LoadBalancerZoneConfig(
-				environment.getProperty("spring.cloud.loadbalancer.zone"));
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    public LoadBalancerZoneConfig zoneConfig(Environment environment) {
+        return new LoadBalancerZoneConfig(environment.getProperty("spring.cloud.loadbalancer.zone"));
+    }
 
-	@ConditionalOnMissingBean
-	@Bean
-	public LoadBalancerClientFactory loadBalancerClientFactory() {
-		LoadBalancerClientFactory clientFactory = new LoadBalancerClientFactory();
-		clientFactory.setConfigurations(
-				this.configurations.getIfAvailable(Collections::emptyList));
-		return clientFactory;
-	}
+    @ConditionalOnMissingBean
+    @Bean
+    public LoadBalancerClientFactory loadBalancerClientFactory() {
+        LoadBalancerClientFactory clientFactory = new LoadBalancerClientFactory();
+        clientFactory.setConfigurations(this.configurations.getIfAvailable(Collections::emptyList));
+        return clientFactory;
+    }
 
 }

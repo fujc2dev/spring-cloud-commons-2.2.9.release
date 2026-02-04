@@ -19,7 +19,12 @@ package org.springframework.cloud.client.loadbalancer.reactive;
 import org.reactivestreams.Publisher;
 
 /**
- * Reactive load balancer.
+ * 通用响应式负载均衡器
+ *
+ * <p>
+ *  
+ *
+ * </p>
  *
  * @param <T> type of the response
  * @author Spencer Gibb
@@ -27,28 +32,29 @@ import org.reactivestreams.Publisher;
  */
 public interface ReactiveLoadBalancer<T> {
 
-	/**
-	 * Default implementation of a request.
-	 */
-	Request<DefaultRequestContext> REQUEST = new DefaultRequest();
+    /**
+     * Default implementation of a request.
+     */
+    Request<DefaultRequestContext> REQUEST = new DefaultRequest();
 
-	/**
-	 * Choose the next server based on the load balancing algorithm.
-	 * @param request - incoming request
-	 * @return publisher for the response
-	 */
-	@SuppressWarnings("rawtypes")
-	Publisher<Response<T>> choose(Request request);
+    /**
+     * Choose the next server based on the load balancing algorithm.
+     *
+     * @param request - incoming request
+     * @return publisher for the response
+     */
+    @SuppressWarnings("rawtypes")
+    Publisher<Response<T>> choose(Request request);
 
-	default Publisher<Response<T>> choose() { // conflicting name
-		return choose(REQUEST);
-	}
+    default Publisher<Response<T>> choose() { // conflicting name
+        return choose(REQUEST);
+    }
 
-	@FunctionalInterface
-	interface Factory<T> {
+    @FunctionalInterface
+    interface Factory<T> {
 
-		ReactiveLoadBalancer<T> getInstance(String serviceId);
+        ReactiveLoadBalancer<T> getInstance(String serviceId);
 
-	}
+    }
 
 }
